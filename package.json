@@ -1,0 +1,10 @@
+{
+  "name": "elm-spa-sample",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "elm-spa": "^6.0.4",
+    "typescript": "^5.1.6"
+  }
+}
