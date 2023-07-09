@@ -1,10 +1,21 @@
 {
-  "name": "elm-spa-sample",
+  "name": "elm-spa-amplify",
   "version": "1.0.0",
-  "main": "index.js",
+  "scripts": {
+    "build-ts": "npx parcel build src/ts/main.ts --dist-dir public/dist",
+    "build-elm": "npx elm-spa build",
+    "build": "yarn run build-ts && yarn run build-elm",
+    "dev": "yarn run build-ts && npx elm-spa server",
+    "format-elm": "npx elm-format --yes src"
+  },
   "license": "MIT",
   "devDependencies": {
+    "@parcel/transformer-image": "^2.9.3",
+    "elm-format": "^0.8.7",
     "elm-spa": "^6.0.4",
+    "npm": "^9.5.0",
+    "parcel": "^2.8.3",
+    "sharp": "^0.31.1",
     "typescript": "^5.1.6"
   }
 }
