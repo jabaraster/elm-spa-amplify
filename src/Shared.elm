@@ -1,13 +1,18 @@
-module Shared exposing
+port module Shared exposing
     ( Flags
     , Model
     , Msg
+    , failedLogin
     , init
     , subscriptions
+    , succeededLogin
+    , tryLogin
     , update
     )
 
-import Json.Decode as Json
+import Domain
+import Gen.Route
+import Json.Encode as Json
 import Request exposing (Request)
 
 
@@ -31,35 +36,47 @@ type alias KayoinobaAttributeIconUrls =
 type alias Flags =
     { placeIconUrls : PlaceIconUrls
     , kayoinobaAttributeIconUrls : KayoinobaAttributeIconUrls
+    , user : Maybe Domain.User
     }
 
 
 type alias Model =
-    { placeIconUrls : PlaceIconUrls
-    , kayoinobaAttributeIconUrls : KayoinobaAttributeIconUrls
-    }
+    Flags
 
 
 type Msg
-    = NoOp
+    = SucceededLogin Domain.User
 
 
 init : Request -> Flags -> ( Model, Cmd Msg )
 init _ flags =
-    ( { placeIconUrls = flags.placeIconUrls
-      , kayoinobaAttributeIconUrls = flags.kayoinobaAttributeIconUrls
-      }
+    ( flags
     , Cmd.none
     )
 
 
 update : Request -> Msg -> Model -> ( Model, Cmd Msg )
-update _ msg model =
+update req msg model =
     case msg of
-        NoOp ->
-            ( model, Cmd.none )
+        SucceededLogin user ->
+            ( { model | user = Just user }
+            , if Gen.Route.Auth__SignIn == req.route then
+                Request.pushRoute Gen.Route.Admin__Map req
+
+              else
+                Cmd.none
+            )
 
 
 subscriptions : Request -> Model -> Sub Msg
 subscriptions _ _ =
-    Sub.none
+    succeededLogin SucceededLogin
+
+
+port tryLogin : Domain.User -> Cmd msg
+
+
+port succeededLogin : (Domain.User -> msg) -> Sub msg
+
+
+port failedLogin : (Json.Value -> msg) -> Sub msg

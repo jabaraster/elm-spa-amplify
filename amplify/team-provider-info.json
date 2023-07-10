@@ -10,6 +10,11 @@
       "StackName": "amplify-elmspaamplify-dev-135200",
       "StackId": "arn:aws:cloudformation:ap-northeast-1:195957709288:stack/amplify-elmspaamplify-dev-135200/82581380-1edd-11ee-97c6-0672535c7cbb",
       "AmplifyAppId": "d1jgvar2g4anrb"
+    },
+    "categories": {
+      "auth": {
+        "elmspaamplify42121e69": {}
+      }
     }
   }
 }

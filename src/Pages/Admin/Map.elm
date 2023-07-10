@@ -1,24 +1,26 @@
 module Pages.Admin.Map exposing (Model, Msg, page)
 
-import UI
+import Domain
 import Effect exposing (Effect)
 import Gen.Params.Admin.Map exposing (Params)
 import Html.Styled exposing (img)
 import Html.Styled.Attributes exposing (src)
 import Page
-import Request
+import Request exposing (Request)
 import Shared
+import UI
 import View exposing (View)
 
 
-page : Shared.Model -> Request.With Params -> Page.With Model Msg
-page shared req =
-    Page.advanced
-        { init = init shared
-        , update = update
-        , view = view
-        , subscriptions = subscriptions
-        }
+page : Shared.Model -> Request -> Page.With Model Msg
+page shared _ =
+    Page.protected.advanced <|
+        \user ->
+            { init = init shared
+            , update = update
+            , view = view user
+            , subscriptions = \_ -> Sub.none
+            }
 
 
 
@@ -66,11 +68,11 @@ subscriptions model =
 -- VIEW
 
 
-view : Model -> View Msg
-view model =
-    {
-        title = "Admin.Map"
-        , body = UI.layout [
-            img  [src model.sharedModel.kayoinobaAttributeIconUrls.taisou ][]
-        ]
+view : Domain.User -> Model -> View Msg
+view user model =
+    { title = "Admin.Map"
+    , body =
+        UI.layout
+            [ img [ src model.sharedModel.kayoinobaAttributeIconUrls.taisou ] []
+            ]
     }
