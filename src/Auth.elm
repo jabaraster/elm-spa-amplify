@@ -10,18 +10,15 @@ module Auth exposing
 
 -}
 
-import Domain
+import Domain exposing (SignInUser)
 import ElmSpa.Page as ElmSpa
 import Gen.Route exposing (Route)
-import Json.Encode as Json
 import Request exposing (Request)
 import Shared
 
 
-{-| Replace the "()" with your actual User type
--}
 type alias User =
-    Domain.User
+    Domain.SignInUser
 
 
 {-| This function will run before any `protected` pages.
@@ -29,7 +26,7 @@ type alias User =
 Here, you can provide logic on where to redirect if a user is not signed in. Here's an example:
 
 -}
-beforeProtectedInit : Shared.Model -> Request -> ElmSpa.Protected User Route
+beforeProtectedInit : Shared.Model -> Request -> ElmSpa.Protected SignInUser Route
 beforeProtectedInit shared _ =
     case shared.user of
         Just user ->

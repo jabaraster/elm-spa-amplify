@@ -1,18 +1,19 @@
 port module Shared exposing
-    ( Flags
+    ( AuthError
+    , Flags
     , Model
-    , Msg
-    , failedLogin
+    , Msg(..)
     , init
+    , signOut
     , subscriptions
-    , succeededLogin
-    , tryLogin
     , update
     )
 
 import Domain
 import Gen.Route
 import Json.Encode as Json
+import Platform exposing (Router)
+import Platform.Cmd as Cmd
 import Request exposing (Request)
 
 
@@ -33,10 +34,16 @@ type alias KayoinobaAttributeIconUrls =
     }
 
 
+type alias AuthError =
+    { code : String
+    , message : String
+    }
+
+
 type alias Flags =
     { placeIconUrls : PlaceIconUrls
     , kayoinobaAttributeIconUrls : KayoinobaAttributeIconUrls
-    , user : Maybe Domain.User
+    , user : Maybe Domain.SignInUser
     }
 
 
@@ -45,7 +52,9 @@ type alias Model =
 
 
 type Msg
-    = SucceededLogin Domain.User
+    = SucceedSignIn Domain.SignInUser
+    | RedirectToSignIn Json.Value
+    | SignedOut Json.Value
 
 
 init : Request -> Flags -> ( Model, Cmd Msg )
@@ -58,25 +67,43 @@ init _ flags =
 update : Request -> Msg -> Model -> ( Model, Cmd Msg )
 update req msg model =
     case msg of
-        SucceededLogin user ->
+        SucceedSignIn user ->
             ( { model | user = Just user }
-            , if Gen.Route.Auth__SignIn == req.route then
-                Request.pushRoute Gen.Route.Admin__Map req
-
-              else
-                Cmd.none
+            , pushRoute Gen.Route.Admin__Map req
             )
+
+        RedirectToSignIn _ ->
+            ( model
+            , pushRoute Gen.Route.Auth__SignIn req
+            )
+
+        SignedOut _ ->
+            ( model
+            , pushRoute Gen.Route.Auth__SignIn req
+            )
+
+
+pushRoute : Gen.Route.Route -> Request -> Cmd msg
+pushRoute route req =
+    if req.route /= route then
+        Request.pushRoute route req
+
+    else
+        Cmd.none
 
 
 subscriptions : Request -> Model -> Sub Msg
 subscriptions _ _ =
-    succeededLogin SucceededLogin
+    Sub.batch
+        [ redirectToSignIn RedirectToSignIn
+        , signedOut SignedOut
+        ]
 
 
-port tryLogin : Domain.User -> Cmd msg
+port redirectToSignIn : (Json.Value -> msg) -> Sub msg
 
 
-port succeededLogin : (Domain.User -> msg) -> Sub msg
+port signOut : () -> Cmd msg
 
 
-port failedLogin : (Json.Value -> msg) -> Sub msg
+port signedOut : (Json.Value -> msg) -> Sub msg

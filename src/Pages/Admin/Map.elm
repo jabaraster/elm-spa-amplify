@@ -45,14 +45,14 @@ init shared =
 
 
 type Msg
-    = ReplaceMe
+    = OnSignOut
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        ReplaceMe ->
-            ( model, Effect.none )
+        OnSignOut ->
+            ( model, Effect.fromCmd <| Shared.signOut () )
 
 
 
@@ -68,11 +68,11 @@ subscriptions model =
 -- VIEW
 
 
-view : Domain.User -> Model -> View Msg
+view : Domain.SignInUser -> Model -> View Msg
 view user model =
     { title = "Admin.Map"
     , body =
-        UI.layout
+        UI.layout OnSignOut
             [ img [ src model.sharedModel.kayoinobaAttributeIconUrls.taisou ] []
             ]
     }

@@ -1,6 +1,11 @@
-module Domain exposing (User)
+module Domain exposing (JwtToken, SignInUser)
 
 
-type alias User =
-    { id : String
+type alias JwtToken =
+    String
+
+
+type alias SignInUser =
+    { userId : String
+    , jwtToken : JwtToken
     }

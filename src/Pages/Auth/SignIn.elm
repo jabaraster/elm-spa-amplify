@@ -1,15 +1,20 @@
 module Pages.Auth.SignIn exposing (Model, Msg, page)
 
 import Bulma.Classes as B
+import Css exposing (..)
+import Domain
 import Effect exposing (Effect)
 import Gen.Params.Auth.SignIn exposing (Params)
-import Html.Styled exposing (button, form, input, label, p, text)
-import Html.Styled.Attributes exposing (class, type_, value)
+import Gen.Route
+import Html.Styled exposing (a, button, div, form, hr, input, label, p, text)
+import Html.Styled.Attributes exposing (class, css, href, type_, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import Json.Encode as Json
 import Page
+import Ports.Auth.SignIn as Ports
 import Request
 import Shared
+import Styles
 import View exposing (View)
 
 
@@ -18,33 +23,35 @@ view model =
     { title = "Sign in"
     , body =
         List.map Html.Styled.toUnstyled
-            [ form []
+            [ form [ css Styles.formSmall ]
                 [ label [] [ text "ユーザID" ]
                 , input
-                    [ value model.inputUserId
-                    , onInput ChangeInputUserId
+                    [ value model.input.userId
+                    , onInput <| ChangeInput setUserId
                     , class B.input
                     ]
                     []
                 , label [] [ text "パスワード" ]
                 , input
-                    [ value model.inputPassword
+                    [ value model.input.password
                     , class B.input
-                    , onInput ChangeInputPassword
+                    , onInput <| ChangeInput setPassword
                     , type_ "password"
                     ]
                     []
-                , button [ type_ B.button, onClick OnSignIn ] [ text "Sign in" ]
+                , hr [] []
+                , button [ type_ B.button, class B.button, onClick OnSubmit ] [ text "Sign in" ]
                 ]
             , p [] [ text model.errorMessage ]
+            , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__ForgotPassword ] [ text "パスワードを忘れた場合はこちら" ] ]
             ]
     }
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
-page shared req =
+page _ req =
     Page.advanced
-        { init = init
+        { init = init req
         , update = update
         , view = view
         , subscriptions = subscriptions
@@ -55,17 +62,26 @@ page shared req =
 -- INIT
 
 
+type alias Input =
+    { userId : String
+    , password : String
+    }
+
+
 type alias Model =
-    { inputUserId : String
-    , inputPassword : String
+    { request : Request.With Params
+    , input : Input
     , errorMessage : String
     }
 
 
-init : ( Model, Effect Msg )
-init =
-    ( { inputUserId = ""
-      , inputPassword = ""
+init : Request.With Params -> ( Model, Effect Msg )
+init req =
+    ( { request = req
+      , input =
+            { userId = ""
+            , password = ""
+            }
       , errorMessage = ""
       }
     , Effect.none
@@ -77,26 +93,48 @@ init =
 
 
 type Msg
-    = ChangeInputUserId String
-    | ChangeInputPassword String
-    | OnSignIn
-    | FailedLogin Json.Value
+    = ChangeInput (String -> Input -> Input) String
+    | OnSubmit
+    | SucceedSignIn Domain.SignInUser
+    | RequireChangePassword Json.Value
+    | FailSignIn Shared.AuthError
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        ChangeInputUserId v ->
-            ( { model | inputUserId = v }, Effect.none )
+        ChangeInput ope v ->
+            let
+                input =
+                    model.input
+            in
+            ( { model | input = ope v input }, Effect.none )
 
-        ChangeInputPassword v ->
-            ( { model | inputPassword = v }, Effect.none )
+        OnSubmit ->
+            ( model, Effect.fromCmd <| Ports.signIn { userId = model.input.userId, password = model.input.password } )
 
-        OnSignIn ->
-            ( model, Effect.fromCmd <| Shared.tryLogin { id = model.inputUserId } )
+        SucceedSignIn user ->
+            ( model, Effect.fromShared <| Shared.SucceedSignIn user )
 
-        FailedLogin _ ->
-            ( { model | errorMessage = "ログイン失敗" }, Effect.none )
+        RequireChangePassword _ ->
+            ( model, Effect.fromCmd <| Request.pushRoute Gen.Route.Auth__ChangePassword model.request )
+
+        FailSignIn err ->
+            case err.code of
+                "NotAuthorizedException" ->
+                    ( { model | errorMessage = "ユーザID、パスワードが違います。" }, Effect.none )
+
+                "UserNotFoundException" ->
+                    ( { model | errorMessage = "ユーザID、パスワードが違います。" }, Effect.none )
+
+                "InvalidParameterException" ->
+                    ( { model | errorMessage = "パスワードを入力してください。" }, Effect.none )
+
+                "Username cannot be empty" ->
+                    ( { model | errorMessage = "ユーザIDを入力してください。" }, Effect.none )
+
+                _ ->
+                    ( { model | errorMessage = "ログインに失敗しました。code[" ++ err.code ++ "] message[" ++ err.message ++ "]" }, Effect.none )
 
 
 
@@ -105,4 +143,18 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Shared.failedLogin FailedLogin
+    Sub.batch
+        [ Ports.succeedSignIn SucceedSignIn
+        , Ports.failSignIn FailSignIn
+        , Ports.requireChangePassword RequireChangePassword
+        ]
+
+
+setUserId : String -> Input -> Input
+setUserId s i =
+    { i | userId = s }
+
+
+setPassword : String -> Input -> Input
+setPassword s i =
+    { i | password = s }
