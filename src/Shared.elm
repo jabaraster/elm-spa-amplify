@@ -12,26 +12,8 @@ port module Shared exposing
 import Domain
 import Gen.Route
 import Json.Encode as Json
-import Platform exposing (Router)
 import Platform.Cmd as Cmd
 import Request exposing (Request)
-
-
-type alias PlaceIconUrls =
-    { category1 : String
-    , category2 : String
-    , category3 : String
-    }
-
-
-type alias KayoinobaAttributeIconUrls =
-    { taisou : String
-    , noutore : String
-    , ongaku : String
-    , insyokuari : String
-    , undou : String
-    , free : String
-    }
 
 
 type alias AuthError =
@@ -41,14 +23,11 @@ type alias AuthError =
 
 
 type alias Flags =
-    { placeIconUrls : PlaceIconUrls
-    , kayoinobaAttributeIconUrls : KayoinobaAttributeIconUrls
-    , user : Maybe Domain.SignInUser
-    }
+    Domain.AppConfig
 
 
 type alias Model =
-    Flags
+    Domain.AppConfig
 
 
 type Msg

@@ -13,8 +13,11 @@ import "bulma/css/bulma.min.css";
 import { Elm } from "../../.elm-spa/defaults/Main.elm";
 
 const flags = {
+    graphqlEndpoint: awsConfig.aws_appsync_graphqlEndpoint,
+    apiKey: awsConfig.aws_appsync_apiKey,
     placeIconUrls,
     kayoinobaAttributeIconUrls,
+    googleMapApiKey: "",
     user: null,
 };
 

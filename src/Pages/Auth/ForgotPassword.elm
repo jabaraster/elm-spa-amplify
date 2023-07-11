@@ -102,11 +102,14 @@ update msg model =
             ( model, Effect.fromCmd <| Request.pushRoute Gen.Route.Auth__ResetPassword model.request )
 
         FailForgotPassword err ->
-            fail { model | loading = False} err
+            fail { model | loading = False } err
 
-fail : Model -> Shared.AuthError -> (Model, Effect Msg)
+
+fail : Model -> Shared.AuthError -> ( Model, Effect Msg )
 fail model _ =
-                    ( { model | loading = False, errorMessage = "存在しないユーザIDです。" }, Effect.none )
+    ( { model | loading = False, errorMessage = "存在しないユーザIDです。" }, Effect.none )
+
+
 
 -- SUBSCRIPTIONS
 
