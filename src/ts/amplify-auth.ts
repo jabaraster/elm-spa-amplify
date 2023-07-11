@@ -15,11 +15,15 @@ interface SimpleUserData {
 function simplifyCognitoUser(user: CognitoUser): SimpleUserData {
     return {
         userId: user.getUsername(),
+        email: user.attributes.email,
         jwtToken: user.getSignInUserSession()!.getAccessToken().getJwtToken()!,
     };
 }
 
-export const currentAuthenticatedUser = Auth.currentAuthenticatedUser;
+export const currentAuthenticatedUser = async () => {
+    const ret: CognitoUser = await Auth.currentAuthenticatedUser();
+    return simplifyCognitoUser(ret);
+};
 
 export const iniitializePorts = (elmApp: ElmApp) => {
     const ports = elmApp.ports;
@@ -85,7 +89,7 @@ export const iniitializePorts = (elmApp: ElmApp) => {
                     return await Auth.signOut();
                 },
                 successResponseConverter: () => null,
-                successPortFunc: ports.succeedSignOut,
+                successPortFunc: ports.signedOut,
             });
         });
     }

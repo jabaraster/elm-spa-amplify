@@ -5,15 +5,16 @@ import Css exposing (..)
 import Effect exposing (Effect)
 import Gen.Params.Auth.ForgotPassword exposing (Params)
 import Gen.Route
-import Html.Styled exposing (a, button, div, form, hr, input, label, p, text)
-import Html.Styled.Attributes exposing (class, css, href, type_, value)
-import Html.Styled.Events exposing (onClick, onInput)
+import Html.Styled exposing (a, div, form, hr, input, label, p, text)
+import Html.Styled.Attributes exposing (class, css, href, value)
+import Html.Styled.Events exposing (onInput)
 import Json.Encode as Json
 import Page
 import Ports.Auth.ForgotPassword as Ports
 import Request
 import Shared
 import Styles
+import UI
 import View exposing (View)
 
 
@@ -35,9 +36,10 @@ view model =
                     ]
                     []
                 , hr [] []
-                , button [ type_ B.button, class B.button, onClick OnSubmit ] [ text "送信" ]
+                , UI.submitter OnSubmit model.loading "コードを送信(コード入力画面に遷移します)"
                 ]
             , p [] [ text model.errorMessage ]
+            , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__ResetPassword ] [ text "既にコードを持っているならこちらへ" ] ]
             , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__SignIn ] [ text "サインイン画面に戻る" ] ]
             ]
     }
@@ -61,6 +63,7 @@ type alias Model =
     { request : Request.With Params
     , userId : String
     , errorMessage : String
+    , loading : Bool
     }
 
 
@@ -69,6 +72,7 @@ init req =
     ( { request = req
       , userId = ""
       , errorMessage = ""
+      , loading = False
       }
     , Effect.none
     )
@@ -82,7 +86,7 @@ type Msg
     = ChangeUserId String
     | OnSubmit
     | SucceedForgotPassword Json.Value
-    | FailForgotPassword Json.Value
+    | FailForgotPassword Shared.AuthError
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -92,21 +96,23 @@ update msg model =
             ( { model | userId = v }, Effect.none )
 
         OnSubmit ->
-            ( model, Effect.fromCmd <| Ports.forgotPassword { userId = model.userId } )
+            ( { model | loading = True }, Effect.fromCmd <| Ports.forgotPassword { userId = model.userId } )
 
         SucceedForgotPassword _ ->
             ( model, Effect.fromCmd <| Request.pushRoute Gen.Route.Auth__ResetPassword model.request )
 
-        FailForgotPassword _ ->
-            ( { model | errorMessage = "存在しないユーザIDです。" }, Effect.none )
+        FailForgotPassword err ->
+            fail { model | loading = False} err
 
-
+fail : Model -> Shared.AuthError -> (Model, Effect Msg)
+fail model _ =
+                    ( { model | loading = False, errorMessage = "存在しないユーザIDです。" }, Effect.none )
 
 -- SUBSCRIPTIONS
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.batch
         [ Ports.succeedForgotPassword SucceedForgotPassword
         , Ports.failForgotPassword FailForgotPassword

@@ -15,6 +15,7 @@ import Request
 import Shared
 import Styles
 import Svg.Styled.Attributes exposing (in_)
+import UI
 import View exposing (View)
 
 
@@ -35,9 +36,10 @@ view model =
                 , label [] [ text "新しいパスワード" ]
                 , input [ value model.input.password, onInput <| ChangeInput setPassword, class B.input, type_ "password" ] []
                 , hr [] []
-                , button [ onClick OnSubmit, class B.button, type_ B.button ] [ text "送信" ]
+                , UI.submitter OnSubmit model.loading "変更を実施"
                 ]
             , p [] [ text model.errorMessage ]
+            , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__ForgotPassword ] [ text "コード送信画面に戻る" ] ]
             , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__SignIn ] [ text "サインイン画面に戻る" ] ]
             ]
     }
@@ -68,6 +70,7 @@ type alias Model =
     { request : Request.With Params
     , input : Input
     , errorMessage : String
+    , loading : Bool
     }
 
 
@@ -76,6 +79,7 @@ init req =
     ( { request = req
       , input = { userId = "", code = "", password = "" }
       , errorMessage = ""
+      , loading = False
       }
     , Effect.none
     )
@@ -103,30 +107,38 @@ update msg model =
             ( { model | input = ope v input }, Effect.none )
 
         OnSubmit ->
-            ( model, Effect.fromCmd <| Ports.resetPassword model.input )
+            ( { model | loading = True }, Effect.fromCmd <| Ports.resetPassword model.input )
 
         FailResetPassword err ->
-            case err.code of
-                "Confirmation code cannot be empty" ->
-                    ( { model | errorMessage = "全ての欄は入力必須です。" }, Effect.none )
-
-                "Username cannot be empty" ->
-                    ( { model | errorMessage = "全ての欄は入力必須です。" }, Effect.none )
-
-                "Password cannot be empty" ->
-                    ( { model | errorMessage = "全ての欄は入力必須です。" }, Effect.none )
-
-                "UserNotFoundException" ->
-                    ( { model | errorMessage = "ユーザIDがまちがっているようです。" }, Effect.none )
-
-                "InvalidPasswordException" ->
-                    ( { model | errorMessage = "パスワードには英小文字、英小文字、数字を含めてください。" }, Effect.none )
-
-                _ ->
-                    ( { model | errorMessage = "失敗しました。" }, Effect.none )
+            fail { model | loading = False } err
 
         SucceedResetPassword _ ->
             ( model, Effect.fromCmd <| Request.pushRoute Gen.Route.Auth__SignIn model.request )
+
+
+fail : Model -> Shared.AuthError -> ( Model, Effect Msg )
+fail model err =
+    case err.code of
+        "Confirmation code cannot be empty" ->
+            ( { model | errorMessage = "全ての欄は入力必須です。" }, Effect.none )
+
+        "Username cannot be empty" ->
+            ( { model | errorMessage = "全ての欄は入力必須です。" }, Effect.none )
+
+        "Password cannot be empty" ->
+            ( { model | errorMessage = "全ての欄は入力必須です。" }, Effect.none )
+
+        "UserNotFoundException" ->
+            ( { model | errorMessage = "ユーザIDがまちがっているようです。" }, Effect.none )
+
+        "InvalidPasswordException" ->
+            ( { model | errorMessage = "パスワードには英小文字、英小文字、数字を含めてください。" }, Effect.none )
+
+        "CodeMismatchException" ->
+            ( { model | errorMessage = "コードがまちがっているようです。" }, Effect.none )
+
+        _ ->
+            ( { model | errorMessage = "失敗しました。" }, Effect.none )
 
 
 

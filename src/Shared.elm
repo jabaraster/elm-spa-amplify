@@ -100,10 +100,13 @@ subscriptions _ _ =
         ]
 
 
-port redirectToSignIn : (Json.Value -> msg) -> Sub msg
-
-
 port signOut : () -> Cmd msg
+
+
+port succeedSignOut : (() -> msg) -> Sub msg
+
+
+port redirectToSignIn : (Json.Value -> msg) -> Sub msg
 
 
 port signedOut : (Json.Value -> msg) -> Sub msg

@@ -15,6 +15,7 @@ import Ports.Auth.SignIn as Ports
 import Request
 import Shared
 import Styles
+import UI
 import View exposing (View)
 
 
@@ -40,7 +41,7 @@ view model =
                     ]
                     []
                 , hr [] []
-                , button [ type_ B.button, class B.button, onClick OnSubmit ] [ text "Sign in" ]
+                , UI.submitter OnSubmit model.loading "サインイン"
                 ]
             , p [] [ text model.errorMessage ]
             , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__ForgotPassword ] [ text "パスワードを忘れた場合はこちら" ] ]
@@ -72,6 +73,7 @@ type alias Model =
     { request : Request.With Params
     , input : Input
     , errorMessage : String
+    , loading : Bool
     }
 
 
@@ -83,6 +85,7 @@ init req =
             , password = ""
             }
       , errorMessage = ""
+      , loading = False
       }
     , Effect.none
     )
@@ -111,7 +114,9 @@ update msg model =
             ( { model | input = ope v input }, Effect.none )
 
         OnSubmit ->
-            ( model, Effect.fromCmd <| Ports.signIn { userId = model.input.userId, password = model.input.password } )
+            ( { model | loading = True }
+            , Effect.fromCmd <| Ports.signIn { userId = model.input.userId, password = model.input.password }
+            )
 
         SucceedSignIn user ->
             ( model, Effect.fromShared <| Shared.SucceedSignIn user )
@@ -120,21 +125,26 @@ update msg model =
             ( model, Effect.fromCmd <| Request.pushRoute Gen.Route.Auth__ChangePassword model.request )
 
         FailSignIn err ->
-            case err.code of
-                "NotAuthorizedException" ->
-                    ( { model | errorMessage = "ユーザID、パスワードが違います。" }, Effect.none )
+            fail { model | loading = False } err
 
-                "UserNotFoundException" ->
-                    ( { model | errorMessage = "ユーザID、パスワードが違います。" }, Effect.none )
 
-                "InvalidParameterException" ->
-                    ( { model | errorMessage = "パスワードを入力してください。" }, Effect.none )
+fail : Model -> Shared.AuthError -> ( Model, Effect Msg )
+fail model err =
+    case err.code of
+        "NotAuthorizedException" ->
+            ( { model | errorMessage = "ユーザID、パスワードが違います。" }, Effect.none )
 
-                "Username cannot be empty" ->
-                    ( { model | errorMessage = "ユーザIDを入力してください。" }, Effect.none )
+        "UserNotFoundException" ->
+            ( { model | errorMessage = "ユーザID、パスワードが違います。" }, Effect.none )
 
-                _ ->
-                    ( { model | errorMessage = "ログインに失敗しました。code[" ++ err.code ++ "] message[" ++ err.message ++ "]" }, Effect.none )
+        "InvalidParameterException" ->
+            ( { model | errorMessage = "パスワードを入力してください。" }, Effect.none )
+
+        "Username cannot be empty" ->
+            ( { model | errorMessage = "ユーザIDを入力してください。" }, Effect.none )
+
+        _ ->
+            ( { model | errorMessage = "ログインに失敗しました。code[" ++ err.code ++ "] message[" ++ err.message ++ "]" }, Effect.none )
 
 
 
