@@ -7,8 +7,6 @@ import Api
         , PagingParam
         , RemoteResource
         )
-
-import Gen.Route
 import Api.Scalar exposing (Id(..))
 import Bulma.Classes as B
 import ColorPicker
@@ -16,6 +14,7 @@ import Css exposing (..)
 import DataTable exposing (EditorVisible(..))
 import Domain
 import Effect exposing (Effect)
+import Gen.Route
 import Html
 import Html.Styled exposing (Html, a, br, div, hr, input, label, p, span, text)
 import Html.Styled.Attributes as Attributes exposing (..)
@@ -244,6 +243,7 @@ update msg model =
 
                 ( ShowForNew, _ ) ->
                     ( model, Effect.none )
+
         ShowEditorForNew ->
             ( { model
                 | editorVisible = ShowForNew
@@ -253,6 +253,7 @@ update msg model =
               }
             , Effect.none
             )
+
         ShowEditorForUpdate map ->
             ( { model
                 | editTarget = map
@@ -262,6 +263,7 @@ update msg model =
               }
             , Effect.none
             )
+
         ShowDetailPage map ->
             ( model, Effect.none )
 
@@ -298,7 +300,7 @@ view _ model =
         UI.layout OnSignOut <|
             case model.maps of
                 Success _ ->
-                    [viewMaps model]
+                    [ viewMaps model ]
 
                 _ ->
                     []
