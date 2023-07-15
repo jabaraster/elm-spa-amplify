@@ -16,7 +16,7 @@ const flags = {
     placeIconUrls,
     kayoinobaAttributeIconUrls,
     codeBase: location.origin,
-    googleMapApiKey: "",
+    googleMapApiKey: process.env["GOOGLE_MAP_API_KEY"],
     user: null,
 };
 

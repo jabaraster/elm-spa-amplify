@@ -1,41 +1,46 @@
 import { urls as placeIconUrls } from "./place-icon-url";
 import { urls as kayoinobaAttributeIconUrls } from "./kayoinoba-attribute-icon-url";
-
 import { Amplify, Storage } from "aws-amplify";
-import { ElmApp } from "./domain";
 import awsConfig from "../aws-exports";
 Amplify.configure(awsConfig);
-Storage.configure(awsConfig);
 
+
+import '@webcomponents/webcomponentsjs/custom-elements-es5-adapter';
+import '@google-web-components/google-map';
 
 import { Elm } from "../Map.elm";
+import { AMPLIFY_STORAGE_LEVEL } from "./const";
 
-const flags = {
-    graphqlEndpoint: awsConfig.aws_appsync_graphqlEndpoint,
-    apiKey: awsConfig.aws_appsync_apiKey,
-    placeIconUrls,
-    kayoinobaAttributeIconUrls,
-    codeBase: location.origin,
-    googleMapApiKey: "",
-    user: null,
-};
+function registerSubscriber(ports, functionName, handler) {
+    if (!ports) return;
+    if (!ports[functionName]) return;
+    ports[functionName].subscribe(handler);
+}
 
-window.addEventListener("load", () => {
-    Auth.currentAuthenticatedUser()
-        .then((user) => {
-            console.log(user);
-            flags.user = user;
-            const elmApp: ElmApp = Elm.Main.init({
-                flags: flags
+(function () {
+    const elmApp = Elm.Map.init({
+        node: document.getElementById("main"),
+        flags: {
+            graphqlEndpoint: awsConfig.aws_appsync_graphqlEndpoint,
+            apiKey: awsConfig.aws_appsync_apiKey,
+            placeIconUrls,
+            kayoinobaAttributeIconUrls,
+            codeBase: location.origin,
+            googleMapApiKey: process.env["GOOGLE_MAP_API_KEY"],
+            user: null,
+        },
+    });
+    const ports = elmApp.ports;
+    registerSubscriber(ports, "requestFileUrls", async (fileNames) => {
+        console.log("requestFileUrls")
+        const ret = await Promise.all(fileNames.map(async (fileName) => {
+            const ret = await Storage.get(fileName, {
+                download: false,
+                level: AMPLIFY_STORAGE_LEVEL
             });
-            Auth.iniitializePorts(elmApp);
-        })
-        .catch((err) => {
-            console.log(err);
-            const elmApp: ElmApp = Elm.Main.init({
-                flags: flags
-            });
-            Auth.iniitializePorts(elmApp);
-        })
-        ;
-});
+            return { fileName, url: ret };
+        }));
+        console.log(ret);
+        ports.receiveFileUrls.send(ret);
+    });
+})();

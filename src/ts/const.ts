@@ -1,0 +1,1 @@
+export const AMPLIFY_STORAGE_LEVEL = "public"
