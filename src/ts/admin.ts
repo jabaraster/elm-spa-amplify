@@ -8,8 +8,6 @@ import awsConfig from "../aws-exports";
 Amplify.configure(awsConfig);
 Storage.configure(awsConfig);
 
-import "bulma/css/bulma.min.css";
-
 import { Elm } from "../../.elm-spa/defaults/Main.elm";
 
 const flags = {
@@ -17,6 +15,7 @@ const flags = {
     apiKey: awsConfig.aws_appsync_apiKey,
     placeIconUrls,
     kayoinobaAttributeIconUrls,
+    codeBase: location.origin,
     googleMapApiKey: "",
     user: null,
 };

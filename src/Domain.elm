@@ -35,7 +35,8 @@ type alias SignInUser =
 
 
 type alias AppConfig =
-    { graphqlEndpoint : String
+    { codeBase : String
+    , graphqlEndpoint : String
     , apiKey : String
     , placeIconUrls : PlaceIconUrls
     , kayoinobaAttributeIconUrls : KayoinobaAttributeIconUrls

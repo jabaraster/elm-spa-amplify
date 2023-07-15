@@ -319,11 +319,16 @@ viewMaps model =
               , label = "マップ名"
               , html =
                     \map ->
+                        let
+                            origin =
+                                Gen.Route.toHref <| Gen.Route.Map__MapId_ { mapId = Api.fromId map.id }
+                        in
                         div []
                             [ span [] [ text map.name ]
                             , br [] []
-
-                            -- , a [ Attributes.target "kayoinoba-map", href <| Paths.mapPage map.id ] [ text <| model.codeBase ++ Paths.mapPage map.id ]
+                            , a
+                                [ Attributes.target "kayoinoba-map", href origin ]
+                                [ text <| model.sharedModel.codeBase ++ origin ]
                             ]
               }
             , { widthClass = "auto"

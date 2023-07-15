@@ -14,6 +14,7 @@ import Gen.Route
 import Json.Encode as Json
 import Platform.Cmd as Cmd
 import Request exposing (Request)
+import Url exposing (Protocol(..), Url)
 
 
 type alias AuthError =

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "npx elm-spa gen && npx parcel build src/index.html",
-    "dev": "npx elm-spa gen && npx parcel src/index.html --port 3333",
+    "dev": "npx elm-spa watch | npx parcel src/index.html --port 3333",
     "format-elm": "npx elm-format --yes src",
     "format-dev": "yarn run format-elm && yarn run dev"
   },
@@ -11,6 +11,7 @@
   "devDependencies": {
     "@parcel/transformer-elm": "^2.9.3",
     "@parcel/transformer-image": "^2.9.3",
+    "@webcomponents/webcomponentsjs": "^2.8.0",
     "aws-amplify": "^5.3.3",
     "buffer": "^6.0.3",
     "elm": "^0.19.1-5",
