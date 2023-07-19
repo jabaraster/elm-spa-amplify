@@ -12,7 +12,7 @@ import Bulma.Classes as B
 import ColorPicker
 import Css exposing (..)
 import DataTable exposing (EditorVisible(..))
-import Domain
+import Domain exposing (AppConfig)
 import Effect exposing (Effect)
 import Gen.Route
 import Html
@@ -23,7 +23,6 @@ import Page
 import RemoteData exposing (RemoteData(..))
 import Request exposing (Request)
 import Shared
-import UI
 import View exposing (View)
 import Views
 
@@ -31,10 +30,10 @@ import Views
 page : Shared.Model -> Request -> Page.With Model Msg
 page shared _ =
     Page.protected.advanced <|
-        \user ->
+        \_ ->
             { init = init shared
             , update = update
-            , view = view user
+            , view = view
             , subscriptions = \_ -> Sub.none
             }
 
@@ -44,7 +43,7 @@ page shared _ =
 
 
 type alias Model =
-    { sharedModel : Shared.Model
+    { appConfig : AppConfig
     , pagingParam : PagingParam
     , maps : RemoteResource (List Map)
     , filterText : String
@@ -63,7 +62,7 @@ init shared =
         pagingParam =
             Api.startPagingParam 5
     in
-    ( { sharedModel = shared
+    ( { appConfig = shared
       , pagingParam = pagingParam
       , maps = NotAsked
       , filterText = ""
@@ -126,7 +125,7 @@ update msg model =
                 Just _ ->
                     ( model
                     , Effect.fromCmd <|
-                        Api.doPublicApi model.sharedModel (\param -> Api.listMaps param model.pagingParam AppendMaps)
+                        Api.doPublicApi model.appConfig (\param -> Api.listMaps param model.pagingParam AppendMaps)
                     )
 
         ColorPickerMsg colorMsg ->
@@ -168,7 +167,7 @@ update msg model =
         ClickDelete ->
             ( model
             , Effect.fromCmd <|
-                Api.doProtectedApi model.sharedModel
+                Api.doProtectedApi model.appConfig
                     (\param ->
                         Api.deleteMap param
                             model.editTarget.id
@@ -184,7 +183,7 @@ update msg model =
                 ShowForNew ->
                     ( model
                     , Effect.fromCmd <|
-                        Api.doPublicApi model.sharedModel
+                        Api.doPublicApi model.appConfig
                             (\param ->
                                 Api.existsMap param model.editTarget.id CheckIdDuplicate
                             )
@@ -193,7 +192,7 @@ update msg model =
                 ShowForUpdate ->
                     ( model
                     , Effect.fromCmd <|
-                        Api.doProtectedApi model.sharedModel
+                        Api.doProtectedApi model.appConfig
                             (\param ->
                                 Api.updateMap
                                     param
@@ -226,7 +225,7 @@ update msg model =
                 ( ShowForNew, Success Nothing ) ->
                     ( model
                     , Effect.fromCmd <|
-                        Api.doProtectedApi model.sharedModel
+                        Api.doProtectedApi model.appConfig
                             (\param ->
                                 Api.createMap
                                     param
@@ -273,7 +272,7 @@ update msg model =
                 , deleteDialogVisible = False
                 , errorMessage = ""
               }
-            , Effect.fromCmd <| Api.doPublicApi model.sharedModel (\param -> Api.listMaps param model.pagingParam GotMaps)
+            , Effect.fromCmd <| Api.doPublicApi model.appConfig (\param -> Api.listMaps param model.pagingParam GotMaps)
             )
 
         ChangeInput ope v ->
@@ -293,11 +292,11 @@ subscriptions _ =
 -- VIEW
 
 
-view : Domain.SignInUser -> Model -> View Msg
-view _ model =
+view : Model -> View Msg
+view model =
     { title = "マップ一覧 | 通いの場マップ 管理画面"
     , body =
-        UI.layout OnSignOut <|
+        Views.layout OnSignOut Nothing <|
             case model.maps of
                 Success _ ->
                     [ viewMaps model ]
@@ -328,7 +327,7 @@ viewMaps model =
                             , br [] []
                             , a
                                 [ Attributes.target "kayoinoba-map", href origin ]
-                                [ text <| model.sharedModel.codeBase ++ origin ]
+                                [ text <| model.appConfig.codeBase ++ origin ]
                             ]
               }
             , { widthClass = "auto"

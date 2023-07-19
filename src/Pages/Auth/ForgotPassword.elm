@@ -14,8 +14,8 @@ import Ports.Auth.ForgotPassword as Ports
 import Request
 import Shared
 import Styles
-import UI
 import View exposing (View)
+import Views exposing (submitter)
 
 
 
@@ -36,7 +36,7 @@ view model =
                     ]
                     []
                 , hr [] []
-                , UI.submitter OnSubmit model.loading "コードを送信(コード入力画面に遷移します)"
+                , submitter OnSubmit model.loading "コードを送信(コード入力画面に遷移します)"
                 ]
             , p [] [ text model.errorMessage ]
             , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__ResetPassword ] [ text "既にコードを持っているならこちらへ" ] ]

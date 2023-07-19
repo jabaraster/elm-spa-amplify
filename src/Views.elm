@@ -20,16 +20,19 @@ module Views exposing
     , input
     , inputUnderLine
     , label
+    , layout
     , location
     , mapHeader
     , oneColumn
     , oneColumnNoTBMargin
     , oneColumnNoTopMargin
     , select
+    , submitter
     , textArea
     , twoColumns
     )
 
+import Api exposing (MapId)
 import Api.Enum.PlaceCategory exposing (PlaceCategory(..))
 import Api.InputObject
 import Bulma.Classes as B
@@ -37,9 +40,12 @@ import Bulma.Helpers
 import Color
 import Css exposing (..)
 import Domain exposing (PlaceIconUrls)
+import Html
 import Html.Styled as H exposing (..)
 import Html.Styled.Attributes as A exposing (..)
 import Html.Styled.Events exposing (..)
+import Loading
+import Route
 import Styles
 
 
@@ -513,3 +519,34 @@ extractLatLonFromGoogleMapUrl url =
 
         _ ->
             Nothing
+
+
+submitter : msg -> Bool -> String -> Html msg
+submitter handler loading labelText =
+    H.button
+        [ type_ B.button
+        , class B.button
+        , onClick handler
+        , A.disabled loading
+        ]
+        [ if loading then
+            H.fromUnstyled <| Loading.render Loading.DoubleBounce Loading.defaultConfig Loading.On
+
+          else
+            text labelText
+        ]
+
+
+layout : msg -> Maybe MapId -> List (Html msg) -> List (Html.Html msg)
+layout signOutOperation mMapId children =
+    List.map H.toUnstyled
+        [ header []
+            [ ul []
+                [ li [] [ a [ href <| Route.adminKayoinobaHref mMapId ] [ text "通いの場" ] ]
+                , li [] [ a [ href <| Route.adminMapHref ] [ text "地図" ] ]
+                , li [] [ a [ href <| Route.adminPlaceHref mMapId ] [ text "場所" ] ]
+                , li [] [ a [ onClick signOutOperation, href "#" ] [ text "サインアウト" ] ]
+                ]
+            ]
+        , div [] children
+        ]

@@ -3,7 +3,7 @@ import { urls as kayoinobaAttributeIconUrls } from "./kayoinoba-attribute-icon-u
 import { Amplify, Storage } from "aws-amplify";
 import awsConfig from "../aws-exports";
 Amplify.configure(awsConfig);
-
+Storage.configure(awsConfig);
 
 import '@webcomponents/webcomponentsjs/custom-elements-es5-adapter';
 import '@google-web-components/google-map';

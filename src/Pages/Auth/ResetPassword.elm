@@ -5,18 +5,17 @@ import Css exposing (..)
 import Effect exposing (Effect)
 import Gen.Params.Auth.ResetPassword exposing (Params)
 import Gen.Route
-import Html.Styled exposing (a, button, div, form, hr, input, label, p, text)
+import Html.Styled exposing (a, div, form, hr, input, label, p, text)
 import Html.Styled.Attributes exposing (class, css, href, type_, value)
-import Html.Styled.Events exposing (onClick, onInput)
+import Html.Styled.Events exposing (onInput)
 import Json.Encode as Json
 import Page
 import Ports.Auth.ResetPassword as Ports
 import Request
 import Shared
 import Styles
-import Svg.Styled.Attributes exposing (in_)
-import UI
 import View exposing (View)
+import Views exposing (submitter)
 
 
 
@@ -36,7 +35,7 @@ view model =
                 , label [] [ text "新しいパスワード" ]
                 , input [ value model.input.password, onInput <| ChangeInput setPassword, class B.input, type_ "password" ] []
                 , hr [] []
-                , UI.submitter OnSubmit model.loading "変更を実施"
+                , submitter OnSubmit model.loading "変更を実施"
                 ]
             , p [] [ text model.errorMessage ]
             , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__ForgotPassword ] [ text "コード送信画面に戻る" ] ]

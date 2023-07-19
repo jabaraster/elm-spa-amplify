@@ -6,8 +6,8 @@ import Html.Styled exposing (h1, text)
 import Page
 import Request
 import Shared
-import UI
 import View exposing (View)
+import Views
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
@@ -65,5 +65,5 @@ subscriptions model =
 view : Model -> View Msg
 view model =
     { title = "Home"
-    , body = UI.layout OnSignOut [ h1 [] [ text "Home" ] ]
+    , body = Views.layout OnSignOut Nothing [ h1 [] [ text "Home" ] ]
     }

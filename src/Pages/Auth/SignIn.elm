@@ -15,8 +15,8 @@ import Ports.Auth.SignIn as Ports
 import Request
 import Shared
 import Styles
-import UI
 import View exposing (View)
+import Views exposing (submitter)
 
 
 view : Model -> View Msg
@@ -41,7 +41,7 @@ view model =
                     ]
                     []
                 , hr [] []
-                , UI.submitter OnSubmit model.loading "サインイン"
+                , submitter OnSubmit model.loading "サインイン"
                 ]
             , p [] [ text model.errorMessage ]
             , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__ForgotPassword ] [ text "パスワードを忘れた場合はこちら" ] ]
