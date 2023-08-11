@@ -15,11 +15,11 @@ import Browser.Navigation as Navigation
 import Bulma.Classes as B
 import Css exposing (..)
 import DataTable exposing (EditorVisible(..))
-import Dict
 import Domain exposing (AppConfig)
 import Effect exposing (Effect)
 import Gen.Params.Admin.Kayoinoba exposing (Params)
-import Html.Styled exposing (Html, a, div, h1, p, span, text)
+import Gen.Route
+import Html.Styled exposing (Html, a, div, h2, p, span, text)
 import Html.Styled.Attributes as Attributes exposing (..)
 import Html.Styled.Events exposing (..)
 import List.Extra as List
@@ -29,8 +29,9 @@ import Request
 import Route
 import Shared
 import Styles
+import Tags exposing (..)
 import View exposing (View)
-import Views exposing (IconKind(..), label)
+import Views exposing (IconKind(..))
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
@@ -67,8 +68,8 @@ type alias Model =
 
 
 getMapId : Model -> Maybe MapId
-getMapId model =
-    Maybe.map Id <| Dict.get "map-id" model.request.query
+getMapId =
+    .map >> Maybe.map .id
 
 
 init : Shared.Model -> Request.With Params -> ( Model, Effect Msg )
@@ -497,14 +498,20 @@ subscriptions _ =
 -- VIEW
 
 
+title : String
+title =
+    "通いの場の管理"
+
+
 view : Model -> View Msg
 view model =
-    { title = "地図[" ++ (Maybe.withDefault "" <| Maybe.map (\map -> map.name) model.map) ++ "]詳細"
+    { title = title
     , body =
-        Views.layout OnSignOut (getMapId model) <|
+        Views.layout OnSignOut (getMapId model) Gen.Route.Admin__Kayoinoba <|
             case model.maps of
                 Success [] ->
-                    [ h1 []
+                    [ h1 [] [ text title ]
+                    , h2 []
                         [ text "マップが登録されていません。"
                         , a [ href Route.adminMapHref ] [ text "こちら" ]
                         , text "から登録してください。"
@@ -512,7 +519,8 @@ view model =
                     ]
 
                 Success maps ->
-                    [ Views.select
+                    [ h1 [] [ text title ]
+                    , Views.select
                         { value = model.map
                         , values = maps
                         , valueToString = \m -> Api.fromId <| m.id
@@ -570,13 +578,11 @@ checkInputForNew model =
         /= ""
         && String.trim (Api.fromId et.kayoinobaPlaceId)
         /= ""
-        && String.trim et.target
-        /= ""
         && String.trim et.contact
         /= ""
+        -- 属性が１つは設定されていないといけない
         && not
             (not et.attributes.taisou
-                -- 属性が１つは設定されていないといけない
                 && not et.attributes.noutore
                 && not et.attributes.ongaku
                 && not et.attributes.insyokuari

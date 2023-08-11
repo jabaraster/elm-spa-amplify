@@ -152,6 +152,26 @@
         }
       }
     },
+    "apielmspaamplify": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": "https://s3.amazonaws.com/amplify-elmspaamplify-dev-135200-deployment/amplify-cfn-templates/api/cloudformation-template.json",
+        "Parameters": {
+          "AppSyncApiName": "elmspaamplify",
+          "DynamoDBBillingMode": "PAY_PER_REQUEST",
+          "DynamoDBEnableServerSideEncryption": false,
+          "AuthCognitoUserPoolId": {
+            "Fn::GetAtt": [
+              "authelmspaamplify42121e69",
+              "Outputs.UserPoolId"
+            ]
+          },
+          "S3DeploymentBucket": "amplify-elmspaamplify-dev-135200-deployment",
+          "S3DeploymentRootKey": "amplify-appsync-files/60688e075cedacefbc2b00e96360fa48d0bfa91f",
+          "env": "dev"
+        }
+      }
+    },
     "authelmspaamplify42121e69": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
@@ -201,26 +221,6 @@
           },
           "breakCircularDependency": true,
           "dependsOn": "",
-          "env": "dev"
-        }
-      }
-    },
-    "apielmspaamplify": {
-      "Type": "AWS::CloudFormation::Stack",
-      "Properties": {
-        "TemplateURL": "https://s3.amazonaws.com/amplify-elmspaamplify-dev-135200-deployment/amplify-cfn-templates/api/cloudformation-template.json",
-        "Parameters": {
-          "AppSyncApiName": "elmspaamplify",
-          "DynamoDBBillingMode": "PAY_PER_REQUEST",
-          "DynamoDBEnableServerSideEncryption": false,
-          "AuthCognitoUserPoolId": {
-            "Fn::GetAtt": [
-              "authelmspaamplify42121e69",
-              "Outputs.UserPoolId"
-            ]
-          },
-          "S3DeploymentBucket": "amplify-elmspaamplify-dev-135200-deployment",
-          "S3DeploymentRootKey": "amplify-appsync-files/c195e656e6584ca8bf4d783a4930e648bdf7d72d",
           "env": "dev"
         }
       }

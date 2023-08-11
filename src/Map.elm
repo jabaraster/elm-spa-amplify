@@ -12,7 +12,7 @@ import Dict exposing (Dict)
 import Domain exposing (AppConfig, KayoinobaAttributeIconUrls, PlaceIconUrls)
 import GoogleMaps.Map as GoogleMaps
 import GoogleMaps.Marker as Marker exposing (Marker)
-import Html.Styled as H exposing (..)
+import Html.Styled as H exposing (Html, a, div, h2, img, li, ol, span, text, ul)
 import Html.Styled.Attributes as A exposing (..)
 import Html.Styled.Events exposing (..)
 import KayoinobaList exposing (Filter, KayoinobaList)
@@ -20,6 +20,7 @@ import Ports exposing (FileNameToUrl)
 import RemoteData exposing (RemoteData(..))
 import RemoteResourceLoader exposing (RemoteResourceLoader)
 import Styles
+import Tags exposing (..)
 import Url exposing (Protocol(..), Url)
 import Url.Parser as UP exposing ((</>))
 import Views exposing (IconKind(..))
@@ -623,7 +624,7 @@ viewKayoinobaDetail model =
                                 ]
                             ]
                           <|
-                            [ Views.button
+                            [ button
                                 [ css [ Styles.borderNone, Styles.cursorPointer, position absolute, right (px 10) ]
                                 , onClick HideKayoinobaDetail
                                 ]

@@ -2,7 +2,6 @@ module Views exposing
     ( IconKind(..)
     , InputArg
     , backdrop
-    , button
     , c2c
     , c2c_
     , categoryIcon32
@@ -19,7 +18,6 @@ module Views exposing
     , iconS
     , input
     , inputUnderLine
-    , label
     , layout
     , location
     , mapHeader
@@ -40,13 +38,13 @@ import Bulma.Helpers
 import Color
 import Css exposing (..)
 import Domain exposing (PlaceIconUrls)
+import Gen.Route exposing (Route(..))
 import Html
 import Html.Styled as H exposing (..)
 import Html.Styled.Attributes as A exposing (..)
 import Html.Styled.Events exposing (..)
 import Loading
 import Route
-import Styles
 
 
 {-| Form utility.
@@ -202,18 +200,6 @@ twoColumns tag1 tag2 =
         [ div [ class B.column ] [ tag1 ]
         , div [ class B.column ] [ tag2 ]
         ]
-
-
-{-| Tag utility
--}
-button : List (Attribute msg) -> List (Html msg) -> Html msg
-button attrs =
-    styled H.button [] (type_ B.button :: attrs)
-
-
-label : List (Attribute msg) -> List (Html msg) -> Html msg
-label =
-    styled H.label Styles.label
 
 
 select :
@@ -537,16 +523,38 @@ submitter handler loading labelText =
         ]
 
 
-layout : msg -> Maybe MapId -> List (Html msg) -> List (Html.Html msg)
-layout signOutOperation mMapId children =
-    List.map H.toUnstyled
-        [ header []
-            [ ul []
-                [ li [] [ a [ href <| Route.adminKayoinobaHref mMapId ] [ text "通いの場" ] ]
-                , li [] [ a [ href <| Route.adminMapHref ] [ text "地図" ] ]
-                , li [] [ a [ href <| Route.adminPlaceHref mMapId ] [ text "場所" ] ]
-                , li [] [ a [ onClick signOutOperation, href "#" ] [ text "サインアウト" ] ]
+active : Gen.Route.Route -> Gen.Route.Route -> List (Attribute msg)
+active r0 r2 =
+    if r0 == r2 then
+        [ class B.isActive ]
+
+    else
+        []
+
+
+layout : msg -> Maybe MapId -> Gen.Route.Route -> List (Html msg) -> List (Html.Html msg)
+layout signOutOperation mMapId route children =
+    [ H.toUnstyled <|
+        div []
+            [ nav [ class B.tabs ]
+                [ ul []
+                    [ li (active route Admin__Kayoinoba) [ a [ href <| Route.adminKayoinobaHref mMapId ] [ text <| "通いの場" ] ]
+                    , li (active route Admin__Map) [ a [ href <| Route.adminMapHref ] [ text "地図" ] ]
+                    , li (active route Admin__Place) [ a [ href <| Route.adminPlaceHref mMapId ] [ text "場所" ] ]
+                    , li [] [ a [ onClick signOutOperation, href "#" ] [ text "サインアウト" ] ]
+                    ]
                 ]
+            , div
+                [ class B.column
+                , class B.isFourFifths
+                , css
+                    [ maxWidth (px 1024)
+                    , marginTop zero
+                    , marginBottom zero
+                    , marginRight auto
+                    , marginLeft auto
+                    ]
+                ]
+                children
             ]
-        , div [] children
-        ]
+    ]

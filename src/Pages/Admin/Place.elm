@@ -16,13 +16,13 @@ import Browser.Navigation as Navigation
 import Bulma.Classes as B
 import Css exposing (..)
 import DataTable exposing (EditorVisible(..))
-import Dict
 import Domain exposing (AppConfig, PlaceIconUrls)
 import Effect exposing (Effect)
 import File exposing (File)
 import File.Select as Select
 import Gen.Params.Admin.Place exposing (Params)
-import Html.Styled exposing (Html, a, button, div, h1, img, label, p, span, text)
+import Gen.Route
+import Html.Styled exposing (Html, a, div, h2, img, p, span, text)
 import Html.Styled.Attributes as Attributes exposing (..)
 import Html.Styled.Events exposing (..)
 import List.Extra as List
@@ -33,6 +33,7 @@ import Request
 import Route
 import Shared
 import Styles
+import Tags exposing (..)
 import Task
 import View exposing (View)
 import Views exposing (IconKind(..))
@@ -79,8 +80,8 @@ type alias Model =
 
 
 getMapId : Model -> Maybe MapId
-getMapId model =
-    Maybe.map Id <| Dict.get "map-id" model.request.query
+getMapId =
+    .map >> Maybe.map .id
 
 
 init : Shared.Model -> Request.With Params -> ( Model, Effect Msg )
@@ -381,7 +382,7 @@ mapLoaded model =
 
 fail : Model -> ( Model, Cmd Msg )
 fail m =
-    ( m, Cmd.none )
+    ( m, Debug.log "fail" Cmd.none )
 
 
 hideEditor : Model -> Model
@@ -450,10 +451,15 @@ subscriptions _ =
 -- VIEW
 
 
+title : String
+title =
+    "場所の管理"
+
+
 view : Model -> View Msg
 view model =
-    { title = "地図[" ++ (Maybe.withDefault "" <| Maybe.map (\map -> map.name) model.map) ++ "]詳細"
-    , body = List.map Html.Styled.toUnstyled <| viewBody model
+    { title = title
+    , body = Views.layout OnSignOut (Maybe.map .id model.map) Gen.Route.Admin__Place <| viewBody model
     }
 
 
@@ -461,7 +467,8 @@ viewBody : Model -> List (Html Msg)
 viewBody model =
     case model.maps of
         Success [] ->
-            [ h1 []
+            [ h1 [] [ text title ]
+            , h2 []
                 [ text "マップが登録されていません。"
                 , a [ href Route.adminMapHref ] [ text "こちら" ]
                 , text "から登録してください。"
@@ -469,7 +476,8 @@ viewBody model =
             ]
 
         Success maps ->
-            [ Views.select
+            [ h1 [] [ text title ]
+            , Views.select
                 { value = model.map
                 , values = maps
                 , valueToString = \m -> Api.fromId <| m.id
@@ -658,12 +666,12 @@ selectPlaceCategory placeIconUrls selected handler =
 
 doProtectedApi : Model -> (ProtectedAccessParam -> MapId -> Cmd Msg) -> Cmd Msg
 doProtectedApi model operation =
-    case getMapId model of
+    case model.map of
         Nothing ->
             Cmd.none
 
-        Just mapId ->
-            Api.doProtectedApi model.appConfig (\param -> operation param mapId)
+        Just map ->
+            Api.doProtectedApi model.appConfig (\param -> operation param map.id)
 
 
 inputGoogleMapUrl : String -> Model -> Model

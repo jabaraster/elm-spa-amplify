@@ -4,6 +4,7 @@ module Styles exposing
     , cursorPointer
     , errorMessage
     , formSmall
+    , h1
     , label
     , list
     , objectFitCover
@@ -29,6 +30,14 @@ th =
     [ fontSize (rem 0.8)
     , fontWeight bold
     , color (rgb 150 150 150)
+    ]
+
+
+h1 : List Style
+h1 =
+    [ fontSize (pct 150)
+    , fontWeight bolder
+    , marginBottom (em 1)
     ]
 
 

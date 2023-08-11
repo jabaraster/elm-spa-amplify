@@ -2,6 +2,7 @@ module Pages.Home_ exposing (Model, Msg, page)
 
 import Effect exposing (Effect)
 import Gen.Params.Home_ exposing (Params)
+import Gen.Route
 import Html.Styled exposing (h1, text)
 import Page
 import Request
@@ -65,5 +66,5 @@ subscriptions model =
 view : Model -> View Msg
 view model =
     { title = "Home"
-    , body = Views.layout OnSignOut Nothing [ h1 [] [ text "Home" ] ]
+    , body = Views.layout OnSignOut Nothing Gen.Route.Home_ [ h1 [] [ text "Home" ] ]
     }

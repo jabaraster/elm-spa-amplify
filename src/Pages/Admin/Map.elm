@@ -16,13 +16,14 @@ import Domain exposing (AppConfig)
 import Effect exposing (Effect)
 import Gen.Route
 import Html
-import Html.Styled exposing (Html, a, br, div, hr, input, label, p, span, text)
+import Html.Styled exposing (Html, a, br, div, hr, input, p, span, text)
 import Html.Styled.Attributes as Attributes exposing (..)
 import Html.Styled.Events exposing (..)
 import Page
 import RemoteData exposing (RemoteData(..))
 import Request exposing (Request)
 import Shared
+import Tags exposing (..)
 import View exposing (View)
 import Views
 
@@ -292,17 +293,22 @@ subscriptions _ =
 -- VIEW
 
 
+title : String
+title =
+    "地図の管理"
+
+
 view : Model -> View Msg
 view model =
-    { title = "マップ一覧 | 通いの場マップ 管理画面"
+    { title = title
     , body =
-        Views.layout OnSignOut Nothing <|
+        Views.layout OnSignOut Nothing Gen.Route.Admin__Map <|
             case model.maps of
                 Success _ ->
-                    [ viewMaps model ]
+                    [ h1 [] [ text title ], viewMaps model ]
 
                 _ ->
-                    []
+                    [ h1 [] [ text title ] ]
     }
 
 

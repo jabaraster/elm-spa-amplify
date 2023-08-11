@@ -8,7 +8,7 @@ adminKayoinobaHref : Maybe MapId -> String
 adminKayoinobaHref mMapId =
     Gen.Route.toHref Gen.Route.Admin__Kayoinoba
         ++ (Maybe.withDefault "" <|
-                Maybe.map (\mapId -> "?map-Id=" ++ Api.fromId mapId) mMapId
+                Maybe.map (\mapId -> "?map-id=" ++ Api.fromId mapId) mMapId
            )
 
 
@@ -21,5 +21,5 @@ adminPlaceHref : Maybe MapId -> String
 adminPlaceHref mMapId =
     Gen.Route.toHref Gen.Route.Admin__Place
         ++ (Maybe.withDefault "" <|
-                Maybe.map (\mapId -> "?map-Id=" ++ Api.fromId mapId) mMapId
+                Maybe.map (\mapId -> "?map-id=" ++ Api.fromId mapId) mMapId
            )
