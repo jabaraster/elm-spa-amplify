@@ -26,18 +26,16 @@ view : Model -> View Msg
 view model =
     { title = "パスワードリセット"
     , body =
-        List.map Html.Styled.toUnstyled
-            [ form [ css Styles.formSmall ]
-                [ label [] [ text "ユーザID" ]
-                , input
-                    [ value model.userId
-                    , onInput ChangeUserId
-                    , class B.input
-                    ]
-                    []
-                , hr [] []
-                , submitter OnSubmit model.loading "コードを送信(コード入力画面に遷移します)"
+        Views.signInLayout
+            [ label [] [ text "ユーザID" ]
+            , input
+                [ value model.userId
+                , onInput ChangeUserId
+                , class B.input
                 ]
+                []
+            , hr [] []
+            , submitter OnSubmit model.loading "コードを送信(コード入力画面に遷移します)"
             , p [] [ text model.errorMessage ]
             , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__ResetPassword ] [ text "既にコードを持っているならこちらへ" ] ]
             , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__SignIn ] [ text "サインイン画面に戻る" ] ]

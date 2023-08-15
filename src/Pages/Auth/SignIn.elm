@@ -21,30 +21,30 @@ import Views exposing (submitter)
 
 view : Model -> View Msg
 view model =
-    { title = "Sign in"
+    { title = "サインイン"
     , body =
-        List.map Html.Styled.toUnstyled
-            [ form [ css Styles.formSmall ]
-                [ label [] [ text "ユーザID" ]
-                , input
-                    [ value model.input.userId
-                    , onInput <| ChangeInput setUserId
-                    , class B.input
-                    ]
-                    []
-                , label [] [ text "パスワード" ]
-                , input
-                    [ value model.input.password
-                    , class B.input
-                    , onInput <| ChangeInput setPassword
-                    , type_ "password"
-                    ]
-                    []
-                , hr [] []
-                , submitter OnSubmit model.loading "サインイン"
+        Views.signInLayout
+            [ label [] [ text "ユーザID" ]
+            , input
+                [ value model.input.userId
+                , onInput <| ChangeInput setUserId
+                , class B.input
                 ]
+                []
+            , label [] [ text "パスワード" ]
+            , input
+                [ value model.input.password
+                , class B.input
+                , onInput <| ChangeInput setPassword
+                , type_ "password"
+                ]
+                []
+            , a [ href <| Gen.Route.toHref Gen.Route.Auth__ForgotPassword ] [ text "パスワードを忘れた場合はこちら" ]
+            , hr [] []
+            , submitter OnSubmit model.loading "サインイン"
             , p [] [ text model.errorMessage ]
-            , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__ForgotPassword ] [ text "パスワードを忘れた場合はこちら" ] ]
+            , hr [] []
+            , p [] [ text "新しくアカウントが必要な場合はサムライト社担当にご連絡をお願いします。" ]
             ]
     }
 

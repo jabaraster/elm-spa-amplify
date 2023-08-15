@@ -25,6 +25,7 @@ module Views exposing
     , oneColumnNoTBMargin
     , oneColumnNoTopMargin
     , select
+    , signInLayout
     , submitter
     , textArea
     , twoColumns
@@ -40,11 +41,34 @@ import Css exposing (..)
 import Domain exposing (PlaceIconUrls)
 import Gen.Route exposing (Route(..))
 import Html
-import Html.Styled as H exposing (..)
+import Html.Styled as H
+    exposing
+        ( Attribute
+        , Html
+        , a
+        , div
+        , footer
+        , h2
+        , h4
+        , header
+        , hr
+        , i
+        , li
+        , nav
+        , p
+        , section
+        , span
+        , strong
+        , styled
+        , text
+        , textarea
+        , ul
+        )
 import Html.Styled.Attributes as A exposing (..)
 import Html.Styled.Events exposing (..)
 import Loading
 import Route
+import Tags exposing (..)
 
 
 {-| Form utility.
@@ -532,10 +556,37 @@ active r0 r2 =
         []
 
 
+signInLayout : List (Html msg) -> List (Html.Html msg)
+signInLayout content =
+    List.map
+        H.toUnstyled
+        [ section [ class B.hero, class B.isWarning, class B.isSmall ]
+            [ div [ class B.heroBody ]
+                [ p [ class B.title ] [ text "通いの場マップ 管理" ]
+                ]
+            ]
+        , section
+            [ class B.card
+            , css
+                [ maxWidth (px 600)
+                , margin auto
+                , padding (px 14)
+                ]
+            ]
+            content
+        , footer
+        ]
+
+
 layout : msg -> Maybe MapId -> Gen.Route.Route -> List (Html msg) -> List (Html.Html msg)
-layout signOutOperation mMapId route children =
-    [ H.toUnstyled <|
-        div []
+layout signOutOperation mMapId route content =
+    List.map H.toUnstyled
+        [ section [ class B.hero, class B.isWarning, class B.isSmall ]
+            [ div [ class B.heroBody ]
+                [ p [ class B.title ] [ text "通いの場マップ 管理" ]
+                ]
+            ]
+        , section []
             [ nav [ class B.tabs ]
                 [ ul []
                     [ li (active route Admin__Kayoinoba) [ a [ href <| Route.adminKayoinobaHref mMapId ] [ text <| "通いの場" ] ]
@@ -555,6 +606,16 @@ layout signOutOperation mMapId route children =
                     , marginLeft auto
                     ]
                 ]
-                children
+                content
             ]
-    ]
+        , footer
+        ]
+
+
+footer : Html msg
+footer =
+    H.footer [ class B.footer ]
+        [ div [ class B.content, class B.hasTextCentered ]
+            [ strong [] [ text "@Somelight Inc." ]
+            ]
+        ]

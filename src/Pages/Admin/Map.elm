@@ -305,10 +305,10 @@ view model =
         Views.layout OnSignOut Nothing Gen.Route.Admin__Map <|
             case model.maps of
                 Success _ ->
-                    [ h1 [] [ text title ], viewMaps model ]
+                    [ viewMaps model ]
 
                 _ ->
-                    [ h1 [] [ text title ] ]
+                    []
     }
 
 

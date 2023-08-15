@@ -13,8 +13,8 @@ import Page
 import Ports.Auth.ChangePassword as Ports
 import Request
 import Shared
-import Styles
 import View exposing (View)
+import Views
 
 
 
@@ -25,35 +25,33 @@ view : Model -> View Msg
 view model =
     { title = "パスワードの変更"
     , body =
-        List.map Html.Styled.toUnstyled
-            [ form [ css Styles.formSmall ]
-                [ label [] [ text "現在のパスワード" ]
-                , input
-                    [ value model.input.currentPassword
-                    , onInput <| ChangeInput setCurrentPassword
-                    , class B.input
-                    , type_ "password"
-                    ]
-                    []
-                , label [] [ text "新しいパスワード" ]
-                , input
-                    [ value model.input.newPassword
-                    , onInput <| ChangeInput setNewPassword
-                    , class B.input
-                    , type_ "password"
-                    ]
-                    []
-                , label [] [ text "新しいパスワードの確認" ]
-                , input
-                    [ value model.input.confirmedPassword
-                    , onInput <| ChangeInput setConfirmedPassword
-                    , class B.input
-                    , type_ "password"
-                    ]
-                    []
-                , hr [] []
-                , button [ onClick OnSubmit, class B.button, type_ B.button ] [ text "送信" ]
+        Views.signInLayout
+            [ label [] [ text "現在のパスワード" ]
+            , input
+                [ value model.input.currentPassword
+                , onInput <| ChangeInput setCurrentPassword
+                , class B.input
+                , type_ "password"
                 ]
+                []
+            , label [] [ text "新しいパスワード" ]
+            , input
+                [ value model.input.newPassword
+                , onInput <| ChangeInput setNewPassword
+                , class B.input
+                , type_ "password"
+                ]
+                []
+            , label [] [ text "新しいパスワードの確認" ]
+            , input
+                [ value model.input.confirmedPassword
+                , onInput <| ChangeInput setConfirmedPassword
+                , class B.input
+                , type_ "password"
+                ]
+                []
+            , hr [] []
+            , button [ onClick OnSubmit, class B.button, type_ B.button ] [ text "送信" ]
             , p [] [ text model.errorMessage ]
             , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__SignIn ] [ text "サインイン画面に戻る" ] ]
             ]

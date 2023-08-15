@@ -467,8 +467,7 @@ viewBody : Model -> List (Html Msg)
 viewBody model =
     case model.maps of
         Success [] ->
-            [ h1 [] [ text title ]
-            , h2 []
+            [ h2 []
                 [ text "マップが登録されていません。"
                 , a [ href Route.adminMapHref ] [ text "こちら" ]
                 , text "から登録してください。"
@@ -476,8 +475,7 @@ viewBody model =
             ]
 
         Success maps ->
-            [ h1 [] [ text title ]
-            , Views.select
+            [ Views.select
                 { value = model.map
                 , values = maps
                 , valueToString = \m -> Api.fromId <| m.id

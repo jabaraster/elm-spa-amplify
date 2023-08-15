@@ -26,17 +26,15 @@ view : Model -> View Msg
 view model =
     { title = "パスワードリセット"
     , body =
-        List.map Html.Styled.toUnstyled
-            [ form [ css Styles.formSmall ]
-                [ label [] [ text "ユーザID" ]
-                , input [ value model.input.userId, onInput <| ChangeInput setUserId, class B.input ] []
-                , label [] [ text "メールで送信したコード" ]
-                , input [ value model.input.code, onInput <| ChangeInput setCode, class B.input ] []
-                , label [] [ text "新しいパスワード" ]
-                , input [ value model.input.password, onInput <| ChangeInput setPassword, class B.input, type_ "password" ] []
-                , hr [] []
-                , submitter OnSubmit model.loading "変更を実施"
-                ]
+        Views.signInLayout
+            [ label [] [ text "ユーザID" ]
+            , input [ value model.input.userId, onInput <| ChangeInput setUserId, class B.input ] []
+            , label [] [ text "メールで送信したコード" ]
+            , input [ value model.input.code, onInput <| ChangeInput setCode, class B.input ] []
+            , label [] [ text "新しいパスワード" ]
+            , input [ value model.input.password, onInput <| ChangeInput setPassword, class B.input, type_ "password" ] []
+            , hr [] []
+            , submitter OnSubmit model.loading "変更を実施"
             , p [] [ text model.errorMessage ]
             , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__ForgotPassword ] [ text "コード送信画面に戻る" ] ]
             , div [] [ a [ href <| Gen.Route.toHref Gen.Route.Auth__SignIn ] [ text "サインイン画面に戻る" ] ]
